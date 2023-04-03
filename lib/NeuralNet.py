@@ -28,19 +28,6 @@ def Backward(W1,b1,W2,b2,W3,b3,S,Y,O1,O2,O3,lr):
     return dW1,dB1,dW2,dB2,dW3,dB3
 
 
-def UpdateParams(W1,b1,W2,b2,W3,b3,S,Y,optimizer=None,batch_size=16,lr=1e-4):
-    n_samples = S.shape[0]
-    idx = np.arange(n_samples)
-    np.random.shuffle(idx)
-    S,Y = S[idx],Y[idx]
-    for i in np.arange(0, n_samples, batch_size):
-        begin, end = i, min(i + batch_size, n_samples)
-        s,y =  S[begin:end] , Y[begin:end]
-        O1,O2,O3 = Forward(W1,b1,W2,b2,W3,b3,s)
-        dW1,dB1,dW2,dB2,dW3,dB3 = Backward(W1,b1,W2,b2,W3,b3,s,y,O1,O2,O3,lr)
-        W1,b1,W2,b2,W3,b3 = optimizer(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,lr)
-    return W1,b1,W2,b2,W3,b3
-
 
 def MSELoss(y_true,y_pred):
     return np.mean(np.square(y_true-y_pred))
@@ -54,10 +41,10 @@ def InitParams(X,y):
     b3 = np.zeros((1,1)) * 1.0
     return W1,b1,W2,b2,W3,b3
 
-def FitModel(X,y,n_iter=10,batch_size=16,lr=1e-4,optimizer=None,print_stat=True):
+def FitModel(X,y,n_iter=10,batch_size=16,lr=1e-4,UpdateParams=None,print_stat=True):
     W1,b1,W2,b2,W3,b3 = InitParams(X,y)
     for _ in range(n_iter):
-        W1,b1,W2,b2,W3,b3 = UpdateParams(W1,b1,W2,b2,W3,b3,X,y,optimizer=optimizer,batch_size=batch_size,lr=lr)
+        W1,b1,W2,b2,W3,b3 = UpdateParams(W1,b1,W2,b2,W3,b3,X,y,batch_size=batch_size,lr=lr)
         if print_stat:
             if _ % 50 == 0:
                 print('Epoch ',_, 'Loss: ',MSELoss(y.reshape(1,-1),Forward(W1,b1,W2,b2,W3,b3,X)[-1]))
