@@ -2,6 +2,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import seaborn as sns
+from lib.Loss import *
 
 def Forward(W1,b1,W2,b2,W3,b3,X):
     O1 = W1 @ X.T + b1
@@ -29,11 +30,6 @@ def Backward(W1,b1,W2,b2,W3,b3,S,Y,O1,O2,O3,lr):
     dW3 = dO3.dot(np.maximum(0,O2).T)
     dB3 = Mean(dO3)
     return dW1,dB1,dW2,dB2,dW3,dB3
-
-
-
-def MSELoss(y_true,y_pred):
-    return np.mean(np.square(y_true-y_pred))
 
 def InitParams(X,y):
     W1 = np.random.uniform(low=-1/np.sqrt(X.shape[1]),high=1/np.sqrt(X.shape[1]),size=(128 ,X.shape[1]))
