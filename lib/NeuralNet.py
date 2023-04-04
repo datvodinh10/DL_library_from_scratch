@@ -1,4 +1,7 @@
 import numpy as np
+import time
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def Forward(W1,b1,W2,b2,W3,b3,X):
     O1 = W1 @ X.T + b1
@@ -41,12 +44,33 @@ def InitParams(X,y):
     b3 = np.zeros((1,1)) * 1.0
     return W1,b1,W2,b2,W3,b3
 
-def FitModel(X,y,n_iter=10,batch_size=16,lr=1e-4,UpdateParams=None,print_stat=True):
+def FitModel(X,y,n_iter=10,batch_size=16,lr=1e-4,loss=None,update=None,print_stat=True,print_every_epochs=50,print_graph=True):
     W1,b1,W2,b2,W3,b3 = InitParams(X,y)
-    for _ in range(n_iter):
-        W1,b1,W2,b2,W3,b3 = UpdateParams(W1,b1,W2,b2,W3,b3,X,y,batch_size=batch_size,lr=lr)
+    start = time.time()
+    stat =  []
+    ep = []
+    for i in range(1,n_iter+1):
+        W1,b1,W2,b2,W3,b3 = update(W1,b1,W2,b2,W3,b3,X,y,batch_size=batch_size,lr=lr,epoch=i)
         if print_stat:
-            if _ % 50 == 0:
-                print('Epoch ',_, 'Loss: ',MSELoss(y.reshape(1,-1),Forward(W1,b1,W2,b2,W3,b3,X)[-1]))
+            if i % print_every_epochs == 0 or i==1:
+                loss = MSELoss(y.reshape(1,-1),Forward(W1,b1,W2,b2,W3,b3,X)[-1])
+                print(f"| {'TIME: '}{time.time()-start:8.2f}s | {'EPOCH: '}{i:>5} | {'LOSS: '}{loss:10.8f} |")
+                stat.append(loss)
+                ep.append(i)
+    if print_graph:
+        plt.figure(figsize=(10,6))
+        sns.set_style('darkgrid') # darkgrid, white grid, dark, white and ticks
+        plt.rc('axes', titlesize=18)     # fontsize of the axes title
+        plt.rc('axes', labelsize=14)    # fontsize of the x and y labels
+        plt.rc('xtick', labelsize=13)    # fontsize of the tick labels
+        plt.rc('ytick', labelsize=13)    # fontsize of the tick labels
+        plt.rc('legend', fontsize=13)    # legend fontsize
+        plt.rc('font', size=13)
+        plt.plot(ep,stat)
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        stat.clear()
+        ep.clear()
+
     return W1,b1,W2,b2,W3,b3
 

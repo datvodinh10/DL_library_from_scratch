@@ -4,7 +4,7 @@ def OptimizerMomentum(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,vW1,vb1,vW2,vb2,
     W1,b1,W2,b2,W3,b3 = W1 - lr * vW1, b1 - lr * vb1, W2 - lr * vW2, b2 - lr * vb2, W3 - lr * vW3, b3 - lr * vb3
     return W1,b1,W2,b2,W3,b3,vW1,vb1,vW2,vb2,vW3,vb3
         
-def UpdateParamsMomentum(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,beta=0.99):
+def Momentum(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,beta=0.99,epoch=0):
     n_samples = S.shape[0]
     idx = np.arange(n_samples)
     np.random.shuffle(idx)
@@ -27,7 +27,7 @@ def OptimizerSGD(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,lr):
     b3 = b3 - dB3*lr
     return W1,b1,W2,b2,W3,b3
         
-def UpdateParamsSGD(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4):
+def SGD(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,epoch=0):
     n_samples = S.shape[0]
     idx = np.arange(n_samples)
     np.random.shuffle(idx)
@@ -52,7 +52,7 @@ def OptimizerAdaGrad(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,sW1,sb1,sW2,sb2,s
     sW1,sb1,sW2,sb2,sW3,sb3 = squared_grad
     return W1,b1,W2,b2,W3,b3, sW1,sb1,sW2,sb2,sW3,sb3
         
-def UpdateParamsAdaGrad(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,beta=0.99):
+def AdaGrad(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,beta=0.99,epoch=0):
     n_samples = S.shape[0]
     idx = np.arange(n_samples)
     np.random.shuffle(idx)
@@ -78,7 +78,7 @@ def OptimizerRMSProp(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,sW1,sb1,sW2,sb2,s
     sW1,sb1,sW2,sb2,sW3,sb3 = squared_grad
     return W1,b1,W2,b2,W3,b3, sW1,sb1,sW2,sb2,sW3,sb3
         
-def UpdateParamsRMSProp(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,gamma=0.9):
+def RMSProp(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,gamma=0.9,epoch=0):
     n_samples = S.shape[0]
     idx = np.arange(n_samples)
     np.random.shuffle(idx)
@@ -109,19 +109,18 @@ def OptimizerAdam(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,vW1,vb1,vW2,vb2,vW3,
     sW1,sb1,sW2,sb2,sW3,sb3 = second_momen
     return W1,b1,W2,b2,W3,b3,vW1,vb1,vW2,vb2,vW3,vb3,sW1,sb1,sW2,sb2,sW3,sb3
         
-def UpdateParamsAdam(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,beta1=0.9,beta2=0.999):
+def Adam(W1,b1,W2,b2,W3,b3,S,Y,batch_size=16,lr=1e-4,beta1=0.9,beta2=0.999,epoch=0):
     n_samples = S.shape[0]
     idx = np.arange(n_samples)
     np.random.shuffle(idx)
     S,Y = S[idx],Y[idx]
     vW1,vb1,vW2,vb2,vW3,vb3 = np.zeros_like(W1),np.zeros_like(b1),np.zeros_like(W2),np.zeros_like(b2),np.zeros_like(W3),np.zeros_like(b3)
     sW1,sb1,sW2,sb2,sW3,sb3 = np.zeros_like(W1),np.zeros_like(b1),np.zeros_like(W2),np.zeros_like(b2),np.zeros_like(W3),np.zeros_like(b3)
-    t = 1
+    t = epoch
     for i in np.arange(0, n_samples, batch_size):
         begin, end = i, min(i + batch_size, n_samples)
         s,y =  S[begin:end] , Y[begin:end]
         O1,O2,O3 = Forward(W1,b1,W2,b2,W3,b3,s)
         dW1,dB1,dW2,dB2,dW3,dB3 = Backward(W1,b1,W2,b2,W3,b3,s,y,O1,O2,O3,lr)
         W1,b1,W2,b2,W3,b3,vW1,vb1,vW2,vb2,vW3,vb3,sW1,sb1,sW2,sb2,sW3,sb3 = OptimizerAdam(W1,b1,W2,b2,W3,b3,dW1,dB1,dW2,dB2,dW3,dB3,vW1,vb1,vW2,vb2,vW3,vb3,sW1,sb1,sW2,sb2,sW3,sb3,lr,beta1,beta2,t)
-        t+=1
     return W1,b1,W2,b2,W3,b3
