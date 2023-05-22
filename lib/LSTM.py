@@ -46,3 +46,4 @@ def backward(X,y,y_pred,C_new,h_new,f_t,i_t,o_t,C_candidate,C_t,h_t,W_f,W_i,W_o,
     b_C = b_C - lr * dL_dbc
     b_z = b_z - lr * dL_dbz
     return W_f,W_i,W_o,W_C,W_z,b_f,b_i,b_o,b_C,b_z
+
